@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Up</title>
+    <meta charset="utf-8">
+    <link rel="icon" href="img/app.png" type="image/png"/>
+    <link rel="stylesheet" href="css/main.css"/>
+    <script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
+    <script async defer src='http://platform.instagram.com/es_ES/embeds.js'></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+#nav_sites{
+display: none;
+z-index: 98 !important;
+}
+    </style>
+    <script>
+    var v_title, v_author, v_age;
+    var current_site =-1;
+    var scrolled;
+
+    function display_list(json) {
+        var html = "";
+
+        var i = 0;
+        var remaining = json.length-i;
+        var lastType=0;
+        while(remaining >0){
+
+            if (remaining%3==0){
+                if (lastType==0){
+                    html+="<div class='news_row'>"
+                        + cnv_big(json[i++]) + "<div class='col'>"
+                        + cnv_small_col(json[i++])
+                        + cnv_small_col(json[i++])
+                        + "</div></div>";
+                    lastType=1;
+                }
+                else if(lastType==1){
+                    html+="<div class='news_row'>"
+                        + cnv_small_row(json[i++])
+                        + cnv_small_row(json[i++])
+                        + cnv_small_row(json[i++])
+                        + "</div>";
+                    lastType=2;
+                }
+                else {
+                    html+="<div class='news_row'><div class='col'>"
+                        + cnv_small_col(json[i++])
+                        + cnv_small_col(json[i++]) + "</div>"
+                        + cnv_big(json[i++])
+                        + "</div>";
+                    lastType=0;
+                }
+            } else {
+                if (remaining>=5){
+                    html+="<div class='news_row'>"
+                        + cnv_big(json[i++]) + "<div class='col'>"
+                        + cnv_small_col(json[i++])
+                        + cnv_small_col(json[i++])
+                        + "</div></div><div class='news_row'>"
+                        + cnv_medium(json[i++])
+                        + cnv_medium(json[i++])
+                        + "</div>";
+                    lastType=2;
+                }
+                else if (remaining%2==0){
+                    html+="<div class='news_row'>"
+                        + cnv_medium(json[i++])
+                        + cnv_medium(json[i++])
+                        + "</div>";
+                }
+                else
+                    html+="<div class='news_row'>" + cnv_big(json[i++]) + "</div>";
+            }
+            remaining = json.length-i;
+        }
+
+        $("#news_list").html(html);
+    }
+
+    function cnv_big(n){return cnv("n_big",n,true);}
+    function cnv_small_col(n){return cnv("n_small_col",n,false);}
+    function cnv_small_row(n){return cnv("n_small_row",n,true);}
+    function cnv_medium(n){return cnv("n_medium",n,true);}
+    function cnv(n_class, n, tag){
+        var html = "<div target='_self' class='news "+ n_class + "' sitecode='" + n.sc + "' title='" + n.title + "' age='" + n.age + "' nid='" + n.nid + "' style='background";
+
+        if (n.imgsrc.length>0)
+            html += "-image:url(" + n.imgsrc + ");'>";
+        else
+            html += "-color:#558B2F'>";
+
+        html+="<div class='text'>";
+
+        if (tag && n.tags.length>0)
+            html+="<div class='tag'>" + n.tags[0] + "</div>";
+
+        html += "<div class='title'>" + n.title+ "</div></div></div>";
+        return html;
+    }
+    function display_error(error) {
+     //   $("#news_list").text(error);
+    }
+    function display_sites(json) {
+        json_sites=json;
+        var html = ""
+        for (var i = 0; i < json.length; ++i) {
+            var site = json[i];
+            html += "<span target='_self' class='site' id='" + site.code + "' co='"+ site.co + "' la='"+ site.la + "' ty='"+ site.ty + "'><img src='img/" + site.code + ".png'>" + site.name + "</span>";
+        }
+
+        $("#sites").html(html);
+    }
+    function display_sections(json) {
+        $("#current_section").text(json[0].name);
+        var html = ""
+        for (var i = 0; i < json.length; ++i) {
+            var s = json[i];
+            var _class = "";
+            if (s.level==-1)
+                _class = "groupsection";
+            else if (s.level==0)
+                _class="section groupsection";
+            else if (s.level==1)
+                _class="section subsection";
+            html += "<p class='"+ _class +"' index='" + i + "'><a target='_self'>" + s.name + "</a></p>";
+        }
+        $("#sections-content").html(html);
+    }
+    function display_news(data) {
+        scrolled = $(window).scrollTop();
+        $(window).scrollTop(0);
+
+        $("#title").text(v_title);
+        $("#date").text(v_age);
+        $("#content").html(data);
+
+        $("#article_box")[0].style.visibility = 'visible';
+        $("#news_list")[0].style.visibility = 'hidden';
+    }
+    function closeNews(data) {
+        $("#article_box")[0].style.visibility = 'hidden';
+        $("#news_list")[0].style.visibility = 'visible';
+        $(window).scrollTop(scrolled);
+        $("#content").html("");
+    }
+    function display_site_news(site_code, site_name){
+        current_site=site_code;
+
+        $.ajax("/web?index&site=" + site_code + ",0", {
+            success: display_list,
+            error: display_error("Error loading news from .site")
+        });
+        $.ajax("/web?sections&site=" + site_code, {
+            success: display_sections,
+            error: display_error("Error loading sections from .site")
+        });
+
+        $("#news_list").text("");
+
+        $("#current_pubicon").attr('src',"img/"+ site_code + ".png");
+        $("#current_pubname").text(site_name);
+    }
+
+    var sCountry = 0;
+    var sLanguage = 0;
+    var sCategory = 0;
+
+    function parseSelection() {
+        var result =".site"
+
+        if (sCountry!="0") {
+            result += "[co="+sCountry+"]"
+        }
+        if (sLanguage!="0") {
+            result += "[la="+sLanguage+"]"
+        }
+        if (sCategory!="0") {
+            result += "[ty="+sCategory+"]"
+        }
+        return result;
+    }
+
+    function display_site_selection(){
+         $("#nav_sites").show(400);
+         $("#cur_pub").hide(0);
+         $("#news_list").hide(0);
+    }
+    function hide_site_selection(){
+        $("#cur_pub").show(0);
+        $("#news_list").show(0);
+        $("#nav_sites").hide(400);
+    }
+
+	$(document).ready(function () {
+
+        $.ajax("/web?sites", {
+                success: display_sites,
+                error: display_error
+        });
+
+        display_site_news(100,"El País");
+
+        $(".closer").click(function() {
+            closeNews();
+        })
+        .mouseenter(function() {
+            $(this).find("img").eq(0).attr('src',"http://newsup-2406.appspot.com/img/ic_arrow_back_hover.svg");
+        })
+        .mouseleave(function() {
+            $(this).find("img").eq(0).attr('src',"http://newsup-2406.appspot.com/img/ic_arrow_back.svg");
+        });
+
+        $('#sel_country').change(function() {
+            sCountry = $(this).val();
+
+           $('.site').hide();
+           $(parseSelection()).show();
+
+        });
+        $('#sel_language').change(function() {
+            sLanguage = $(this).val();
+
+            $('.site').hide();
+            $(parseSelection()).show();
+
+        });
+        $('#sel_category').change(function() {
+            sCategory = $(this).val();
+
+            $('.site').hide();
+            $(parseSelection()).show();
+        });
+        $("#current_pub").click(display_site_selection);
+
+        $("#nav_closer").click(hide_site_selection);
+
+        $("#current_pub").mouseenter(function() {
+            $(this).find("img").eq(0).attr('src',"img/swap_hover.svg");
+        }).mouseleave(function() {
+            $(this).find("img").eq(0).attr('src',"img/swap.svg");
+        });
+
+        $("#sections_header").mouseenter(function() {
+            $(this).find("img").eq(0).attr('src',"img/dropdown_hover.svg");
+        }).mouseleave(function() {
+            $(this).find("img").eq(0).attr('src',"img/dropdown.svg");
+        });
+
+    });
+
+    $(document).on('click', '.site', function() {
+        display_site_news($(this).attr("id"),$(this).text());
+        hide_site_selection();
+    });
+
+    $(document).on('click', '.section', function() {
+        var section_index = $(this).attr('index');
+
+        $.ajax("/web?index&site=" + current_site + "," + section_index, {
+            success: display_list,
+            error: display_error("Error loading news from .section")
+        });
+        $("#current_section").text($(this).text());
+    });
+
+    $(document).on('click', '.news', function () {
+
+        v_title = $(this).attr("title");
+        v_age = $(this).attr("age");
+
+        var v_nid = $(this).attr("nid");
+
+        $.ajax("/web?content&site=" + current_site + "&nid=" + v_nid, {
+            success: display_news,
+            error: display_error("Error loading news from .news")
+        });
+    });
+
+
+    </script>
+</head>
+<body>
+
+<nav id="nav_sites">
+    <img id="nav_closer" src="img/close.svg">
+    <table id="filters">
+        <tr>
+            <th>Country</th>
+            <th>Language</th>
+            <th>Category</th>
+        </tr>
+        <tr>
+            <td>
+                <select id="sel_country">
+                    <option value="0">All</option>
+                    <option value="23">Spain</option>
+                    <option value="56">UK</option>
+                    <option value="24">USA</option>
+                    <option value="29">France</option>
+                    <option value="60">Sweden</option>
+                    <option value="10">Canada</option>
+                    <option value="34">India</option>
+                    <option value="28">Finland</option>
+                    <option value="58">Russia</option>
+                    <option value="45">Mexico</option>
+                    <option value="11">Chile</option>
+                    <option value="64">Venezuela</option>
+                    <option value="3">Australia</option>
+                    <option value="65">Various</option>
+                </select>
+            </td>
+            <td>
+                <select id="sel_language">
+                    <option value="0">All</option>
+                    <option value="7">Spanish</option>
+                    <option value="12">English</option>
+                    <option value="9">French</option>
+                    <option value="17">Swedish</option>
+                    <option value="4">Catalan</option>
+                    <option value="8">Finnish</option>
+                    <option value="19">Various</option>
+                </select>
+            </td>
+            <td>
+                <select id="sel_category">
+                    <option value="0">All</option>
+                    <option value="1">News</option>
+                    <option value="2">Sports</option>
+                    <option value="3">Technology</option>
+                    <option value="4">Science</option>
+                    <option value="5">Astronomy</option>
+                    <option value="6">Economy</option>
+                    <option value="7">Video games</option>
+                    <option value="8">Lifestyle</option>
+                    <option value="9">Motor</option>
+                    <option value="10">Entertainment</option>
+                    <option value="11">Health & Fitness</option>
+                    <option value="12">Music</option>
+                    <option value="13">Politics</option>
+                    <option value="14">Gossip</option>
+                    <option value="15">Gastronomy</option>
+                    <option value="16">Satirical</option>
+                    <option value="17">Consumption</option>
+                    <option value="18">Business</option>
+                    <option value="19">Travel</option>
+                    <option value="20">Culture</option>
+                    <option value="21">Pets</option>
+                    <option value="22">Fashion</option>
+                    <option value="23">Do it yourself</option>
+                    <option value="24">Blogs</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    <div class="divisor"></div>
+
+    <div id="sites">
+    </div>
+</nav>
+
+<nav id="top_bar">
+
+    <img id="favicon" src="img/app.png">
+
+    <div id="current_pub">
+        <img id="swapper" src="img/swap.svg">
+
+        <img id="current_pubicon" src="img/145.png">
+        <span id="current_pubname">Europa Press</span>
+    </div>
+    <div id="sections">
+        <span id="sections_header">
+            <img id="dropdown_icon" src="img/dropdown.svg">
+            <span id="current_section">Portada</span>
+        </span>
+        <div id="sections-content">
+        </div>
+    </div>
+</nav>
+
+<article id="news_list">
+</article>
+
+<footer id="nu_footer">
+</footer>
+
+<div id="article_box">
+    <article id="article_news">
+        <div class="closer"><img src="http://newsup-2406.appspot.com/img/ic_arrow_back.svg"/></div>
+        <h1 id="title"></h1>
+        <div>
+            <span id="author">By NewsUp :)</span>
+            <span id="date"></span>
+        </div>
+        <div id="content"></div>
+        <div class="closer"><img src="http://newsup-2406.appspot.com/img/ic_arrow_back.svg"/></div>
+    </article>
+</div>
+
+</body>
+</html>

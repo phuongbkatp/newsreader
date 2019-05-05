@@ -1,0 +1,47 @@
+<resources>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fontFamily">@string/default_font</item>
+    </style>
+
+    <style name="listItemContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:elevation">@dimen/i_item_elevation</item>
+        <item name="android:background">@drawable/ripple</item>
+    </style>
+
+    <style name="newsItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:elevation">@dimen/i_item_elevation</item>
+        <item name="android:background">@drawable/news_item_ripple</item>
+    </style>
+
+    <style name="themeDialog" parent="Base.Theme.AppCompat.Dialog">
+        <item name="android:timePickerDialogTheme">@style/Dialog</item>
+    </style>
+
+    <style name="Dialog" parent="AppTheme">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="btnDrawerActionbar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/bg_btn_drawer_action_bar</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:tint">@color/tint_btn_drawer_action_bar</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+</resources>

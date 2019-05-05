@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/listItemContainer"
+    android:layout_margin="0dp">
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentTop="true" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="#4000" />
+
+    <com.lucevent.newsup.view.util.AppBoldTextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/picture"
+        android:fontFamily="sans-serif-light"
+        android:padding="20dp"
+        android:text="Title of the Event"
+        android:textAlignment="viewStart"
+        android:textColor="@color/nv_text_dark"
+        android:textSize="24sp" />
+
+</RelativeLayout>

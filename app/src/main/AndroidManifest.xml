@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.lucevent.newsup">
+
+    <!-- Dangerous permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Normal permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".Main"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/main_shortcuts" />
+        </activity>
+        <activity
+            android:name=".SiteMain"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:taskAffinity=".SiteMain"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="NEW_SITE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.activity.DownloadEditorActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:parentActivityName=".Main"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lucevent.newsup.Main" />
+        </activity>
+        <activity
+            android:name=".view.activity.SelectSitesActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:parentActivityName=".Main"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lucevent.newsup.Main" />
+        </activity>
+        <activity
+            android:name=".view.activity.EventActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:parentActivityName=".Main"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lucevent.newsup.Main" />
+        </activity>
+
+        <receiver android:name=".services.ScheduledDownloadReceiver" />
+
+        <service android:name=".services.DownloadService" />
+        <service android:name=".services.StatisticsService" />
+        <service android:name=".services.ContactService" />
+
+        <receiver
+            android:name=".services.onConcerningEventReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".view.activity.ContactActivity"
+            android:label="@string/about_contact"
+            android:parentActivityName=".Main"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lucevent.newsup.Main" />
+        </activity>
+        <activity
+            android:name=".view.activity.FindPublicationActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
+            android:parentActivityName=".Main"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lucevent.newsup.Main" />
+        </activity>
+    </application>
+
+</manifest>
